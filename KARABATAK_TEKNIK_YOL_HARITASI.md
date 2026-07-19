@@ -136,3 +136,29 @@ kullandigi token, bilincli olarak repo'larda url icinde tutuluyor).
    oldugu/kime ait oldugu belgeli degil.
 5. **autocall nginx arkasinda degil** - dogrudan `IP:5000` ile erisiliyor,
    SSL yok. Ileride domain baglanip nginx proxy + Certbot ile SSL eklenebilir.
+
+---
+
+## 6. HarleyOtoPost / Telegram Forwarder - Kurtarma (19.07.2026, ek)
+
+**Ne oldu:** Bot (`harley-bot.service`) 1687 kez cokup yeniden basliyordu,
+panel (`harley-site.service`) her seyi "0" ve "Cevrimdisi" gosteriyordu.
+
+**Sorun 1 - Bot cokuyordu:** `bot/.env` icindeki `DATABASE_URL`'de Supabase'in
+sablon parantezi silinmemisti (`postgres:[Nahsana123.]@...` yerine
+`postgres:Nahsana123.@...` olmasi gerekiyordu). Duzeltildi, bot artik stabil.
+
+**Sorun 2 - Panel bos gorunuyordu:** Bot Supabase'e yaziyordu, panel ise
+Neon.tech'e bakiyordu (proje ilk kurulumda Neon icin tasarlanmis, sonra
+Supabase'e gecilmis ama panel .env'i guncellenmemis). Ayrica Neon projesinin
+compute kotasi da dolmustu. Panelin `DATABASE_URL`'i bot'unkiyle ayni
+(Supabase) yapildi - artik ikisi ayni veritabanini kullaniyor.
+
+**Sonuc:** Panel "Cevrimici" gosteriyor, `/api/stats` gercek veri donuyor.
+Sistem kullanima hazir ama hic kanal tanimlanmamis - musteri sifirdan
+Hedef Kanal + Dinleme Kanali eklemeli.
+
+**Yedekler:** `/opt/harleyotopost/.env.bak-neon` (eski Neon baglantisi,
+gerekirse geri donulebilir), `/opt/harleyotopost/bot/.env.bak` (parantezli hali).
+
+**Neon.tech projesi:** Artik kullanilmiyor, terk edildi. Silinmedi, dokunulmadi.
